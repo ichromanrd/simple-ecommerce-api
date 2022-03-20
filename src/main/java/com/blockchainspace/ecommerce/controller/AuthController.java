@@ -29,17 +29,6 @@ public class AuthController {
         return null;
     }
 
-    @PostMapping("/refresh")
-    public AuthResponse refreshToken(@RequestBody RefreshTokenRequest request) {
-        // TODO implement service
-        return null;
-    }
-
-    @DeleteMapping("/invalidate")
-    public void invalidate(@RequestBody InvalidateSessionRequest request) {
-        // TODO implement service
-    }
-
     @GetMapping
     public List<UserResponse> getUserList() {
         return userService.getUserList();

@@ -50,6 +50,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductListBySeller(int sellerId) {
+        // TODO validate given seller id matching current user
         return productMapper.selectList(new QueryWrapper<Product>().eq("owner", sellerId)).stream()
                 .map(this::constructResponse).collect(Collectors.toList());
     }
@@ -58,14 +59,14 @@ public class ProductService {
         String code = request.getCode();
         Product existingProduct = productMapper.selectById(code);
         if (Objects.isNull(existingProduct)) {
-            throw new ProductManagementException(String.format("Product with code [%s] doesn't exist.", code);
+            throw new ProductManagementException(String.format("Product with code [%s] doesn't exist.", code));
         }
 
         // TODO find the owner and check if the product belongs to him
         // hint: get from shiro realm/auth
         boolean isProductBelongsToCurrentUser = false; // TODO change this if above condition resolved
         if (!isProductBelongsToCurrentUser) {
-            throw new ProductManagementException(String.format("Product with code [%s] doesn't belong to current user", code);
+            throw new ProductManagementException(String.format("Product with code [%s] doesn't belong to current user", code));
         }
 
         validateCreateUpdatePayload(request);
@@ -104,7 +105,7 @@ public class ProductService {
 
         if (updateItemExists) {
             updateWrapper.eq("code", code);
-            productMapper.update(new Product(), updateWrapper);
+            productMapper.update(Product.builder().build(), updateWrapper);
         }
     }
 

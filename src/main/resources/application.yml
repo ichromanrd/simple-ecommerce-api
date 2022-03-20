@@ -1,6 +1,8 @@
 server.port: 9000
 
-jwt.secret: BlockchainSpace
+blockchainspace.jwt:
+  secret: BlockchainSpace
+  expiration: 30 # in seconds, for example
 
 spring:
   datasource:
