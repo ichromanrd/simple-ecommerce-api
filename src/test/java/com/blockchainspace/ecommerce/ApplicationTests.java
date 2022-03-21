@@ -1,7 +1,7 @@
 package com.blockchainspace.ecommerce;
 
-import com.blockchainspace.ecommerce.persistence.User;
-import com.blockchainspace.ecommerce.persistence.mapper.UserMapper;
+import com.blockchainspace.ecommerce.persistence.Users;
+import com.blockchainspace.ecommerce.persistence.mapper.UsersMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +13,14 @@ import java.util.List;
 class ApplicationTests {
 
     @Autowired
-    private UserMapper userMapper;
+    private UsersMapper usersMapper;
 
     @Test
     public void testSelect() {
         System.out.println(("----- selectAll method test ------"));
-        List<User> userList = userMapper.selectList(null);
-        Assertions.assertEquals(2, userList.size());
-        userList.forEach(System.out::println);
+        List<Users> usersList = usersMapper.selectList(null);
+        Assertions.assertEquals(2, usersList.size());
+        usersList.forEach(System.out::println);
     }
 
 }

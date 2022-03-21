@@ -13,8 +13,6 @@ public class ProductCreateUpdateRequest {
 
     private String name;
 
-    private String group;
-
     private String category;
 
     private String publisher;

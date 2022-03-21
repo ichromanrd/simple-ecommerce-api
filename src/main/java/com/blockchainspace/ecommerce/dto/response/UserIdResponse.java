@@ -7,10 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AuthResponse {
+public class UserIdResponse {
 
-    private String expiresIn;
+    private int id;
 
-    private String accessToken;
+    private String username;
+
+    private String firstName;
+
+    private String lastName;
 
 }

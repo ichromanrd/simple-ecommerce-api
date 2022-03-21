@@ -1,9 +1,10 @@
 package com.blockchainspace.ecommerce.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blockchainspace.ecommerce.dto.response.UserIdResponse;
 import com.blockchainspace.ecommerce.dto.response.UserResponse;
-import com.blockchainspace.ecommerce.persistence.User;
-import com.blockchainspace.ecommerce.persistence.mapper.UserMapper;
+import com.blockchainspace.ecommerce.persistence.Users;
+import com.blockchainspace.ecommerce.persistence.mapper.UsersMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,26 +15,28 @@ import java.util.stream.Collectors;
 public class UserService {
 
     @Autowired
-    private UserMapper userMapper;
-
-    public void validateUserLogin() {
-        // TODO
-    }
+    private UsersMapper usersMapper;
 
     public List<UserResponse> getUserList() {
         // TODO remove this
-        List<User> users = userMapper.selectList(new QueryWrapper<>());
+        List<Users> users = usersMapper.selectList(new QueryWrapper<>());
         return users.stream().map(this::constructResponse).collect(Collectors.toList());
     }
 
     public UserResponse getUserById(int id) {
-        User user = userMapper.selectById(id);
-        return constructResponse(user);
+        Users users = usersMapper.selectById(id);
+        return constructResponse(users);
     }
 
-    private UserResponse constructResponse(User user) {
-        return UserResponse.builder().username(user.getUsername()).firstName(user.getFirstName())
-                .lastName(user.getLastName()).build();
+    public UserIdResponse getUserByUsername(String username) {
+        Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", username));
+        return UserIdResponse.builder().username(users.getUsername()).firstName(users.getFirstName())
+                .lastName(users.getLastName()).id(users.getId()).build();
+    }
+
+    private UserResponse constructResponse(Users users) {
+        return UserResponse.builder().username(users.getUsername()).firstName(users.getFirstName())
+                .lastName(users.getLastName()).build();
     }
 
 }

@@ -1,5 +1,7 @@
 package com.blockchainspace.ecommerce.controller;
 
+import com.blockchainspace.ecommerce.ProductManagementException;
+import com.blockchainspace.ecommerce.dto.response.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthenticatedException;
@@ -14,14 +16,16 @@ public class SecurityControllerAdvice {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public void handle(UnauthenticatedException e) {
+    public ErrorResponse handle(UnauthenticatedException e) {
         log.error("unauthorized", e);
+        return ErrorResponse.builder().reason("Unauthorized").message(e.getMessage()).build();
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ProductManagementException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void handle(AuthorizationException e) {
+    public ErrorResponse handle(AuthorizationException e) {
         log.error("forbidden", e);
+        return ErrorResponse.builder().reason("Forbidden").message(e.getMessage()).build();
     }
 
 }

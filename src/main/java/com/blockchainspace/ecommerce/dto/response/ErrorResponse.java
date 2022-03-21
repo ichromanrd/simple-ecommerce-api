@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AuthResponse {
+public class ErrorResponse {
 
-    private String expiresIn;
+    private String reason;
 
-    private String accessToken;
+    private String message;
 
 }

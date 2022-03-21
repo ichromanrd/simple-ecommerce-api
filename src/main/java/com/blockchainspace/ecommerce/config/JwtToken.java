@@ -1,4 +1,4 @@
-package com.blockchainspace.ecommerce.config.jwt;
+package com.blockchainspace.ecommerce.config;
 
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -51,12 +51,12 @@ public class JwtToken implements AuthenticationToken {
 
         @Override
         public PrincipalCollection getPrincipals() {
-            return null;
+            return principals;
         }
 
         @Override
         public Object getCredentials() {
-            return null;
+            return token;
         }
     }
 

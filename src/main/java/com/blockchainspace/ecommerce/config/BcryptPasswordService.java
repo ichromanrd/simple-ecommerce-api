@@ -12,7 +12,12 @@ public class BcryptPasswordService implements PasswordService {
 
     @Override
     public boolean passwordsMatch(Object o, String encrypted) {
-        String submittedPlainText = (String) o;
+        String submittedPlainText;
+        if (o instanceof char[]) {
+            submittedPlainText = new String((char[]) o);
+        } else {
+            submittedPlainText = (String) o;
+        }
         return BCrypt.checkpw(submittedPlainText, encrypted);
     }
 

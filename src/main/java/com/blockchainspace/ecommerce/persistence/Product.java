@@ -1,5 +1,6 @@
 package com.blockchainspace.ecommerce.persistence;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 @Builder
 public class Product {
 
+    @TableId
     private String code;
 
     private String name;

@@ -1,4 +1,4 @@
-package com.blockchainspace.ecommerce.config.jwt;
+package com.blockchainspace.ecommerce.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.blockchainspace.ecommerce.config.jwt;
+package com.blockchainspace.ecommerce.config;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -20,7 +20,7 @@ public class JwtProperties {
     @Value("${blockchainspace.jwt.prefix:Bearer}")
     private String prefix;
 
-    @Value("${blockchainspace.jwt.url:/auth/authentication}")
+    @Value("${blockchainspace.jwt.url:/auth/authenticate}")
     private String url;
 
 }

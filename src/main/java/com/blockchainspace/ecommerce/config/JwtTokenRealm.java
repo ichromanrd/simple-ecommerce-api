@@ -1,6 +1,6 @@
-package com.blockchainspace.ecommerce.config.jwt;
+package com.blockchainspace.ecommerce.config;
 
-import org.apache.shiro.authc.AuthenticationException;
+import com.blockchainspace.ecommerce.config.JwtToken.JwtPrincipalCollection;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -15,13 +15,13 @@ public class JwtTokenRealm extends AuthorizingRealm {
     }
 
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        return ((JwtToken.JwtPrincipalCollection) principals).getAuthorizationInfo();
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) {
+        return ((JwtToken) token).getAuthenticationInfo("jwtTokenRealm");
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return ((JwtToken) token).getAuthenticationInfo("jwtTokenRealm");
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        return ((JwtPrincipalCollection) principals).getAuthorizationInfo();
     }
 
 }

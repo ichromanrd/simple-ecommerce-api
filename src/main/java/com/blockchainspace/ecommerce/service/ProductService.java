@@ -8,6 +8,8 @@ import com.blockchainspace.ecommerce.dto.response.ProductResponse;
 import com.blockchainspace.ecommerce.dto.response.UserResponse;
 import com.blockchainspace.ecommerce.persistence.Product;
 import com.blockchainspace.ecommerce.persistence.mapper.ProductMapper;
+import com.blockchainspace.ecommerce.util.AppSecurityUtil;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +34,12 @@ public class ProductService {
 
         validateCreateUpdatePayload(request);
 
+        int sellerId = AppSecurityUtil.getAttribute("id");
+
         Product product = Product.builder().code(request.getCode()).name(request.getName())
                 .category(request.getCategory()).publisher(request.getPublisher()).unitOfMeasurement(request.getUom())
                 .price(request.getPrice()).quantity(request.getQuantity())
-//                .owner() TODO get id from auth/realm shiro
-                .build();
+                .owner(sellerId).build();
         productMapper.insert(product);
     }
 
@@ -50,9 +53,19 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductListBySeller(int sellerId) {
-        // TODO validate given seller id matching current user
+        int currentSellerId = AppSecurityUtil.getAttribute("id");
+
+        if (currentSellerId != sellerId) {
+            throw new ProductManagementException("Unauthorized user to view the product list");
+        }
+
         return productMapper.selectList(new QueryWrapper<Product>().eq("owner", sellerId)).stream()
                 .map(this::constructResponse).collect(Collectors.toList());
+    }
+
+    private boolean isProductBelongsToCurrentUser(Product existingProduct) {
+        int currentSellerId = AppSecurityUtil.getAttribute("id");
+        return currentSellerId == existingProduct.getOwner();
     }
 
     public void updateProduct(ProductCreateUpdateRequest request) {
@@ -62,15 +75,16 @@ public class ProductService {
             throw new ProductManagementException(String.format("Product with code [%s] doesn't exist.", code));
         }
 
-        // TODO find the owner and check if the product belongs to him
-        // hint: get from shiro realm/auth
-        boolean isProductBelongsToCurrentUser = false; // TODO change this if above condition resolved
-        if (!isProductBelongsToCurrentUser) {
-            throw new ProductManagementException(String.format("Product with code [%s] doesn't belong to current user", code));
+        if (!isProductBelongsToCurrentUser(existingProduct)) {
+            throw new ProductManagementException(String.format("Product with code [%s] doesn't belong to current user",
+                    code));
         }
 
         validateCreateUpdatePayload(request);
+        validateProductAndUpdate(existingProduct, request);
+    }
 
+    private void validateProductAndUpdate(Product existingProduct, ProductCreateUpdateRequest request) {
         boolean updateItemExists = false;
         UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
         if (!request.getName().equals(existingProduct.getName())) {
@@ -104,7 +118,7 @@ public class ProductService {
         }
 
         if (updateItemExists) {
-            updateWrapper.eq("code", code);
+            updateWrapper.eq("code", request.getCode());
             productMapper.update(Product.builder().build(), updateWrapper);
         }
     }
