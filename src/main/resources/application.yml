@@ -2,9 +2,14 @@
 
 server.port: 9000
 
-blockchainspace.jwt:
-  secret: BlockchainSpace
-  expiration: 1800 # in seconds, for example
+blockchainspace:
+  jwt:
+    secret: BlockchainSpace
+    expiration: 1800 # in seconds, for example
+  cache.redis:
+    host: localhost
+    port: 6379
+    ttl: 1800 # in seconds
 
 spring:
   datasource:

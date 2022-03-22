@@ -1,8 +1,10 @@
 package com.blockchainspace.ecommerce.config;
 
+import com.blockchainspace.ecommerce.dto.AuthProperties;
 import com.blockchainspace.ecommerce.dto.request.AuthRequest;
 import com.blockchainspace.ecommerce.dto.response.AuthResponse;
 import com.blockchainspace.ecommerce.dto.response.UserIdResponse;
+import com.blockchainspace.ecommerce.service.AuthService;
 import com.blockchainspace.ecommerce.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +28,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.DateFormatter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -41,12 +42,15 @@ public class JwtUsernamePasswordAuthFilter extends OncePerRequestFilter {
     private final JwtProperties properties;
     private final JdbcRealm realm;
     private final UserService userService;
+    private final AuthService authService;
     private final ObjectMapper objectMapper;
 
-    public JwtUsernamePasswordAuthFilter(JwtProperties properties, Realm realm, UserService userService) {
+    public JwtUsernamePasswordAuthFilter(JwtProperties properties, Realm realm, UserService userService,
+            AuthService authService) {
         this.properties = properties;
         this.realm = (JdbcRealm) realm;
         this.userService = userService;
+        this.authService = authService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -65,8 +69,12 @@ public class JwtUsernamePasswordAuthFilter extends OncePerRequestFilter {
         try {
             AuthRequest authRequest = objectMapper.readValue(servletRequest.getInputStream(), AuthRequest.class);
             subject.login(new UsernamePasswordToken(authRequest.getUsername(), authRequest.getPassword()));
-            setUserPropertiesToSubject(subject, authRequest.getUsername());
+            cacheAuthProperties(subject, authRequest.getUsername());
         } catch (JsonProcessingException | AuthenticationException e) {
+            log.error("Authentication failed: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
@@ -89,12 +97,11 @@ public class JwtUsernamePasswordAuthFilter extends OncePerRequestFilter {
         writeResponse(response, authResponse);
     }
 
-    private void setUserPropertiesToSubject(Subject subject, String username) {
+    private void cacheAuthProperties(Subject subject, String username) throws Exception {
         UserIdResponse user = userService.getUserByUsername(username);
-        Session session = subject.getSession();
-        session.setAttribute("id", user.getId());
-        session.setAttribute("firstName", user.getFirstName());
-        session.setAttribute("lastName", user.getLastName());
+        AuthProperties authProperties = AuthProperties.builder().userId(user.getId())
+                .firstName(user.getFirstName()).lastName(user.getLastName()).build();
+        authService.setAuthProperties(user.getId(), authProperties);
     }
 
     private void writeResponse(HttpServletResponse response, AuthResponse authResponse)

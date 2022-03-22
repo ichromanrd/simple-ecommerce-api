@@ -3,13 +3,14 @@ package com.blockchainspace.ecommerce.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.blockchainspace.ecommerce.ProductManagementException;
+import com.blockchainspace.ecommerce.dto.AuthProperties;
 import com.blockchainspace.ecommerce.dto.request.ProductCreateUpdateRequest;
 import com.blockchainspace.ecommerce.dto.response.ProductResponse;
 import com.blockchainspace.ecommerce.dto.response.UserResponse;
 import com.blockchainspace.ecommerce.persistence.Product;
 import com.blockchainspace.ecommerce.persistence.mapper.ProductMapper;
 import com.blockchainspace.ecommerce.util.AppSecurityUtil;
-import org.apache.shiro.SecurityUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +25,18 @@ public class ProductService {
     private ProductMapper productMapper;
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private UserService userService;
 
-    public void addProduct(ProductCreateUpdateRequest request) {
+    public void addProduct(ProductCreateUpdateRequest request, int sellerId) {
         Product existingProduct = productMapper.selectById(request.getCode());
         if (Objects.nonNull(existingProduct)) {
             throw new ProductManagementException(String.format("Product already exists with code [%s] exist", request.getCode()));
         }
 
         validateCreateUpdatePayload(request);
-
-        int sellerId = AppSecurityUtil.getAttribute("id");
 
         Product product = Product.builder().code(request.getCode()).name(request.getName())
                 .category(request.getCategory()).publisher(request.getPublisher()).unitOfMeasurement(request.getUom())
@@ -52,10 +54,10 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductResponse> getProductListBySeller(int sellerId) {
-        int currentSellerId = AppSecurityUtil.getAttribute("id");
+    public List<ProductResponse> getProductListBySeller(int sellerId) throws JsonProcessingException {
+        AuthProperties authProperties = authService.getAuthPropertiesFromCache(sellerId);
 
-        if (currentSellerId != sellerId) {
+        if (Objects.isNull(authProperties)) {
             throw new ProductManagementException("Unauthorized user to view the product list");
         }
 
@@ -63,21 +65,11 @@ public class ProductService {
                 .map(this::constructResponse).collect(Collectors.toList());
     }
 
-    private boolean isProductBelongsToCurrentUser(Product existingProduct) {
-        int currentSellerId = AppSecurityUtil.getAttribute("id");
-        return currentSellerId == existingProduct.getOwner();
-    }
-
-    public void updateProduct(ProductCreateUpdateRequest request) {
+    public void updateProduct(ProductCreateUpdateRequest request, int sellerId) {
         String code = request.getCode();
         Product existingProduct = productMapper.selectById(code);
         if (Objects.isNull(existingProduct)) {
             throw new ProductManagementException(String.format("Product with code [%s] doesn't exist.", code));
-        }
-
-        if (!isProductBelongsToCurrentUser(existingProduct)) {
-            throw new ProductManagementException(String.format("Product with code [%s] doesn't belong to current user",
-                    code));
         }
 
         validateCreateUpdatePayload(request);

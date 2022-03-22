@@ -1,5 +1,6 @@
 package com.blockchainspace.ecommerce.config;
 
+import com.blockchainspace.ecommerce.service.AuthService;
 import com.blockchainspace.ecommerce.service.UserService;
 import org.apache.shiro.authc.credential.PasswordMatcher;
 import org.apache.shiro.mgt.SecurityManager;
@@ -25,8 +26,8 @@ public class SecurityConfig {
 
     @Bean
     public JwtUsernamePasswordAuthFilter jwtUsernamePasswordAuthFilter(JwtProperties jwtProperties,
-            @Qualifier("jdbcRealm") Realm jdbcRealm, UserService userService) {
-        return new JwtUsernamePasswordAuthFilter(jwtProperties, jdbcRealm, userService);
+            @Qualifier("jdbcRealm") Realm jdbcRealm, UserService userService, AuthService authService) {
+        return new JwtUsernamePasswordAuthFilter(jwtProperties, jdbcRealm, userService, authService);
     }
 
     @Bean
@@ -66,8 +67,8 @@ public class SecurityConfig {
     @Bean
     public ShiroFilterChainDefinition shiroFilterChainDefinition(JwtProperties properties) {
         DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
-        chainDefinition.addPathDefinition(properties.getUrl(), "jwtUsernamePasswordAuth");
-        chainDefinition.addPathDefinition("/**", "jwtTokenAuth");
+        chainDefinition.addPathDefinition(properties.getUrl(), "noSessionCreation, jwtUsernamePasswordAuth");
+        chainDefinition.addPathDefinition("/**", "noSessionCreation, jwtTokenAuth");
         return chainDefinition;
     }
 

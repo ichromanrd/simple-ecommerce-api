@@ -3,6 +3,7 @@ package com.blockchainspace.ecommerce.controller;
 import com.blockchainspace.ecommerce.dto.request.ProductCreateUpdateRequest;
 import com.blockchainspace.ecommerce.dto.response.ProductResponse;
 import com.blockchainspace.ecommerce.service.ProductService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -41,22 +42,22 @@ public class ProductController {
     @GetMapping("/seller/{sellerId}")
     @RequiresPermissions("product:seller-view")
     @RequiresRoles("seller")
-    public List<ProductResponse> getProductListBySellerId(@PathVariable int sellerId) {
+    public List<ProductResponse> getProductListBySellerId(@PathVariable int sellerId) throws JsonProcessingException {
         return productService.getProductListBySeller(sellerId);
     }
 
-    @PostMapping
+    @PostMapping("/seller/{sellerId}")
     @RequiresPermissions("product:manage")
     @RequiresRoles("seller")
-    public void addProduct(@RequestBody ProductCreateUpdateRequest request) {
-        productService.addProduct(request);
+    public void addProduct(@PathVariable int sellerId, @RequestBody ProductCreateUpdateRequest request) {
+        productService.addProduct(request, sellerId);
     }
 
-    @PutMapping
+    @PutMapping("/seller/{sellerId}")
     @RequiresPermissions("product:manage")
     @RequiresRoles("seller")
-    public void updateProduct(@RequestBody ProductCreateUpdateRequest request) {
-        productService.updateProduct(request);
+    public void updateProduct(@PathVariable int sellerId, @RequestBody ProductCreateUpdateRequest request) {
+        productService.updateProduct(request, sellerId);
     }
 
     @DeleteMapping("/{code}")
