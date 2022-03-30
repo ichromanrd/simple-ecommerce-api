@@ -36,7 +36,8 @@ public class ProductController {
     @GetMapping("/{code}")
     @RequiresPermissions(logical = Logical.OR, value = {"product:view", "product:seller-view"})
     public ProductResponse getProductById(@PathVariable String code) {
-        return productService.getProductByCode(code);
+//        return productServic.getProductByCode(code);
+        return null;
     }
 
     @GetMapping("/seller/{sellerId}")

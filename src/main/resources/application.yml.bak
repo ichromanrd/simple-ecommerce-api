@@ -22,3 +22,16 @@ spring:
     console:
       enabled: true
       path: /h2
+
+mbg:
+  jdbc:
+    url: jdbc:h2:mem:blockchainspace
+    username: h2
+    password: h2pass
+    driver-class-name: org.h2.Driver
+  target-package:
+    mapper: com.blockchainspace.ecommerce.persistence.mapper
+    domain: com.blockchainspace.ecommerce.persistence
+  target-project:
+    java: src/main/java
+    resources: src/main/resources
