@@ -11,9 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("com.blockchainspace.ecommerce.persistence.mapper")
 public class Application implements CommandLineRunner {
 
-    @Autowired
-    private BcryptPasswordService bcryptPasswordService;
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
